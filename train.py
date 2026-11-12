@@ -23,7 +23,6 @@ class PaintShopEnv:
         # 1: Siyah, 2: Gri, 3: Beyaz
         target_color = action + 1 
         
-        # Ölümcül Hata Kontrolü
         if (target_color == 1 and self.left_black == 0) or \
            (target_color == 2 and self.left_grey == 0) or \
            (target_color == 3 and self.left_white == 0):
@@ -43,7 +42,7 @@ class PaintShopEnv:
             else:
                 reward = -50 
 
-        # Durumu ve Kotaları Güncelle
+        
         self.current_color = target_color
         
         if target_color == 1:
@@ -53,19 +52,19 @@ class PaintShopEnv:
         elif target_color == 3:
             self.left_white -= 1
 
-        # İş Bitti mi?
+        
         done = (self.left_black == 0 and self.left_grey == 0 and self.left_white == 0)
 
         return self._get_state(), reward, done
 
-# Ortamı başlat
+
 env = PaintShopEnv(target_black=23, target_grey=14, target_white=9)
 q_table = {}
 
 alpha = 0.1      
 gamma = 0.9      
 epsilon = 0.9    
-episodes = 10000 
+episodes = 20000 
 
 def get_q_values(state):
     if state not in q_table:
@@ -74,7 +73,7 @@ def get_q_values(state):
 
 print("Eğitim başlıyor. Lütfen bekleyin...")
 
-# Eğitim Döngüsü
+
 for i in range(episodes):
     state = env.reset()
     done = False
@@ -99,7 +98,7 @@ for i in range(episodes):
 
 print("Eğitim tamamlandı! JSON dosyası oluşturuluyor...\n")
 
-# JSON Formatına Çevirme
+
 q_table_str_keys = {}
 for state, q_values in q_table.items():
     state_str = f"{state[0]},{state[1]},{state[2]},{state[3]}" 
@@ -110,7 +109,7 @@ with open("QTable.json", "w") as outfile:
 
 print("QTable.json başarıyla kaydedildi\n")
 
-# --- TERMİNALE YAZDIRILACAK TEST (ÇIKTI) BÖLÜMÜ ---
+# --- TERMİNAL ÇIKTISI  ---
 print("-" * 60)
 print("EĞİTİLMİŞ YAPAY ZEKA TEST EDİLİYOR (OPTIMAL POLICY)...")
 print("-" * 60)
@@ -122,7 +121,7 @@ step_count = 1
 color_names = {1: "Siyah", 2: "Gri", 3: "Beyaz"}
 
 while not done:
-    # Ajan rastgele seçim yapmaz Q-Tablosundaki en yüksek puanı seçer
+    
     action = np.argmax(get_q_values(state))
     next_state, reward, done = env.step(action)
     
