@@ -3,7 +3,7 @@
 
 # Otomotiv Boyahanesinde Q-Öğrenme ile Dinamik Araç Sıralama Optimizasyonu
 
-Bu proje, otomotiv üretim bantlarındaki boyahane istasyonlarında yaşanan hat yıkama (purging) maliyetlerini en aza indirmek için geliştirilmiş bir **Pekiştirmeli Öğrenme (Reinforcement Learning)** ve simülasyon çalışmasıdır. Dinamik araç sıralaması problemi, **Q-Learning** algoritması ile çözülmüş ve elde edilen optimal politika (policy), **Unity oyun motoru** üzerinde simüle edilmiştir.
+Bu proje, otomotiv üretim bantlarındaki boyahane istasyonlarında yaşanan hat yıkama (purging) maliyetlerini en aza indirmek için geliştirilmiş bir Pekiştirmeli Öğrenme (Reinforcement Learning) ve simülasyon çalışmasıdır. Dinamik araç sıralaması problemi, Q-Learning algoritması ile çözülmüş ve elde edilen optimal politika (policy), Unity oyun motoru üzerinde simüle edilmiştir.
 
 ## 🎯 Problem Tanımı
 Otomotiv boyahanelerinde peş peşe farklı renkte araçlar boyandığında, boya tabancalarının ve hatların temizlenmesi (purging) gerekir. Bu işlem;
