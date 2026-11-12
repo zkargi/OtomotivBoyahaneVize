@@ -1,5 +1,6 @@
 
 
+
 # Otomotiv Boyahanesinde Q-Öğrenme ile Dinamik Araç Sıralama Optimizasyonu
 
 Bu proje, otomotiv üretim bantlarındaki boyahane istasyonlarında yaşanan hat yıkama (purging) maliyetlerini en aza indirmek için geliştirilmiş bir **Pekiştirmeli Öğrenme (Reinforcement Learning)** ve simülasyon çalışmasıdır. Dinamik araç sıralaması problemi, **Q-Learning** algoritması ile çözülmüş ve elde edilen optimal politika (policy), **Unity oyun motoru** üzerinde simüle edilmiştir.
@@ -56,5 +57,6 @@ Eğitilen ajanın kararları, Unity üzerinde geliştirilen `PaintShopController
 * **Safety Lock (Güvenlik Kilidi):** Üretim bandında bir anomali yaşanmaması için, Q-Tablosunun nadir durumlarda kotası bitmiş bir rengi önermesi ihtimaline karşı `targetColor` mantıksal bir kilit ile devreye girerek ajanı mevcut renklere yönlendirir.
 * **Araç Yönlendirme:** Araç, robot kolu (`robotArm`) pozisyonuna gelip boyanır ve kendi renk grubunun şeridine yönlendirilip bandı terk eder.
 ### 🚀 Simülasyon Kısmı
-<img width="1064" height="703" alt="Ekran Resmi 2026-11-12 15 10 10" src="https://github.com/user-attachments/assets/ef65d180-802e-4afb-996f-76745b4ba05a" />
+
+<img width="823" height="527" alt="Ekran Resmi 2026-11-12 15 18 04" src="https://github.com/user-attachments/assets/ce08c6ac-058e-4a21-9307-03da5a833291" />
 <img width="823" height="527" alt="Ekran Resmi 2026-11-12 15 15 57" src="https://github.com/user-attachments/assets/f9898ed6-50bf-499e-9a45-8949602a2d16" />
