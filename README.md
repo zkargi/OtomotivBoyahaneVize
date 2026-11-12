@@ -25,9 +25,9 @@ Durum uzayı 4 temel parametreden oluşur:
 
 ### ⚙️ Eylem (Action) Uzayı
 Ajan, sıradaki aracı boyamak için 3 farklı eylemden birini seçebilir:
-1. **Siyah (1)**
-2. **Gri (2)**
-3. **Beyaz (3)**
+1. **Siyaha boya**
+2. **Griye boya**
+3. **Beyaza boya**
 
 ### ⚖️ Ödül ve Ceza Mekanizması (Reward Function)
 Sistem, maliyetli temizlik işlemlerini sert cezalarla engellerken, aynı renk boyama işlemlerini ödüllendirir:
