@@ -34,9 +34,7 @@ Sistem, maliyetli temizlik işlemlerini sert cezalarla engellerken, aynı renk b
 
 * **Boş ➔ Herhangi (+1):** Başlangıçta ilk aracın boyanması.
 * **Aynı Renk ➔ Aynı Renk (+1):** Renk değişimi yok, temizlik maliyeti sıfır.
-* **Siyah ➔ Beyaz (-100):** En yüksek purging maliyeti. Tam hat temizliği gerektirir.
-* **Beyaz ➔ Siyah (-75):** Yüksek purging maliyeti.
-* **Diğer Renk Değişimleri (-50):** Kısmi temizlik gerektiren geçişler (Örn: Siyah ➔ Gri).
+* **Renk Değişimleri (-100):** Temizlik gerektiren geçişler.
 * **Kritik Hata (-100):** Kotası bitmiş bir rengin tekrar seçilmesi.
 
 ### 🎛️ Eğitim Hiperparametreleri
