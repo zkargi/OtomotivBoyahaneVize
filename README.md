@@ -11,7 +11,7 @@ Otomotiv boyahanelerinde peş peşe farklı renkte araçlar boyandığında, boy
 * Zaman kaybına,
 * Operasyonel maliyetlerin artmasına neden olur.
 
-Özellikle zıt renkler arası geçişler maksimum temizlik gerektirir. Projenin temel amacı, belirli bir sipariş kotası (Örn: 23 Siyah, 14 Gri, 9 Beyaz) bulunan araçların hatta giriş sırasını, renk değişim maliyetlerini minimize edecek şekilde dinamik olarak planlayan otonom bir ajan geliştirmektir.
+Özellikle zıt renkler arası geçişler maksimum temizlik gerektirir. Projenin temel amacı, belirli bir sipariş kotası (Örn: 50 Siyah, 30 Gri, 20 Beyaz) bulunan araçların hatta giriş sırasını, renk değişim maliyetlerini minimize edecek şekilde dinamik olarak planlayan otonom bir ajan geliştirmektir.
 
 ## 🧠 Pekiştirmeli Öğrenme Mimarisi
 Ajanın eğitimi için özel bir `PaintShopEnv` ortamı inşa edilmiştir. Model, state-action uzayını keşfederek en yüksek ödülü getiren dizilimi öğrenir.
