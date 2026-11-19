@@ -4,255 +4,177 @@ import numpy as np
 
 
 class PaintShopEnv:
-    
-    COLOR_NAMES = {
-        1: "Siyah",
-        2: "Gri",
-        3: "Beyaz"
-    }
+    def __init__(
+        self,
+        target_black: int,
+        target_grey: int,
+        target_white: int,
+        batch_size: int = 100,
+    ):
+        assert batch_size > 0, "batch_size pozitif olmalı."
+        assert min(target_black, target_grey, target_white) >= 0, "Sipariş negatif olamaz."
 
-    def __init__(self, black_order, grey_order, white_order):
-        self.targets = [black_order, grey_order, white_order]
+        self.batch_size = batch_size
+        # Stoklar araç sayısı olarak tutulur; her adımda min(batch_size, kalan) araç boyanır.
+        self.init_black = target_black
+        self.init_grey = target_grey
+        self.init_white = target_white
+        self.total_vehicles = target_black + target_grey + target_white
+        self.last_painted = 0
         self.reset()
 
     def reset(self):
-        self.current_color = 0  
-        self.left = self.targets.copy()
-        self.painted_cars = 0
-        self.color_changes = 0
-        return self.get_state()
+        self.current_color = 0  # 0: henüz boyama yapılmadı
+        self.left_black = self.init_black
+        self.left_grey = self.init_grey
+        self.left_white = self.init_white
+        return self._get_state()
 
-    def get_state(self):
-        return (
-            self.current_color,
-            self.left[0],
-            self.left[1],
-            self.left[2]
-        )
+    def _get_state(self):
+        return (self.current_color, self.left_black, self.left_grey, self.left_white)
 
-    def available_actions(self, state):
-        _, left_black, left_grey, left_white = state
-        remaining = [left_black, left_grey, left_white]
-        return [action for action in range(3) if remaining[action] > 0]
+    def valid_actions(self):
+        actions = []
+        if self.left_black > 0:
+            actions.append(0)
+        if self.left_grey > 0:
+            actions.append(1)
+        if self.left_white > 0:
+            actions.append(2)
+        return actions
 
-    def step(self, action):
-        if action not in self.available_actions(self.get_state()):
-            raise ValueError("Seçilen renkten stok kalmamış.")
+    def step(self, action: int):
+        target_color = action + 1  # 1: Siyah, 2: Gri, 3: Beyaz
 
-        target_color = action + 1
+        if (
+            (target_color == 1 and self.left_black == 0)
+            or (target_color == 2 and self.left_grey == 0)
+            or (target_color == 3 and self.left_white == 0)
+        ):
+            return self._get_state(), -100, False
 
-        if self.current_color == 0:
-            reward = 1
-        elif self.current_color == target_color:
+        if self.current_color == 0 or self.current_color == target_color:
             reward = 1
         else:
-            reward = -100 
+            reward = -100
 
-            self.color_changes += 1
-        
-        self.left[action] -= 1
-        self.painted_cars += 1
         self.current_color = target_color
+        if target_color == 1:
+            self.last_painted = min(self.batch_size, self.left_black)
+            self.left_black -= self.last_painted
+        elif target_color == 2:
+            self.last_painted = min(self.batch_size, self.left_grey)
+            self.left_grey -= self.last_painted
+        elif target_color == 3:
+            self.last_painted = min(self.batch_size, self.left_white)
+            self.left_white -= self.last_painted
 
-        done = all(quantity == 0 for quantity in self.left)
-        return self.get_state(), reward, done
-
-
-
-BLACK_ORDER = 8_000
-GREY_ORDER = 4_000
-WHITE_ORDER = 2_000
-
-TOTAL_CARS = BLACK_ORDER + GREY_ORDER + WHITE_ORDER
-
-random.seed(42)
-np.random.seed(42)
-
-env = PaintShopEnv(BLACK_ORDER, GREY_ORDER, WHITE_ORDER)
-
-
-def encode_state(state):
-    """
-    Durumu kayıpsız kodlar:
-    (son renk, kalan siyah, kalan gri, kalan beyaz)
-    """
-    current_color, left_black, left_grey, left_white = state
-
-    code = current_color
-    code = code * (BLACK_ORDER + 1) + left_black
-    code = code * (GREY_ORDER + 1) + left_grey
-    code = code * (WHITE_ORDER + 1) + left_white
-
-    return code
-
-
-def decode_state(code):
-    """Kaydedilen sayısal anahtarı tekrar duruma çevirir."""
-    left_white = code % (WHITE_ORDER + 1)
-    code //= WHITE_ORDER + 1
-
-    left_grey = code % (GREY_ORDER + 1)
-    code //= GREY_ORDER + 1
-
-    left_black = code % (BLACK_ORDER + 1)
-    code //= BLACK_ORDER + 1
-
-    current_color = code
-
-    return current_color, left_black, left_grey, left_white
+        done = self.left_black == 0 and self.left_grey == 0 and self.left_white == 0
+        return self._get_state(), reward, done
 
 
 q_table = {}
 
+alpha = 0.1
+gamma = 0.9
+epsilon = 0.9
+epsilon_min = 0.01
+epsilon_decay = 0.999
+episodes = 20000
+
 
 def get_q_values(state):
-    state_key = encode_state(state)
-
-    if state_key not in q_table:
-        q_table[state_key] = np.zeros(3, dtype=np.float32)
-
-    return q_table[state_key]
+    if state not in q_table:
+        q_table[state] = np.zeros(3, dtype=np.float64)
+    return q_table[state]
 
 
-
-ALPHA = 0.1
-GAMMA = 1.0
-
-EPISODES = 300
-EPSILON = 1.0
-EPSILON_MIN = 0.01
-EPSILON_DECAY = 0.98
-
-
-def choose_action(state, valid_actions, epsilon):
-    
-    if random.random() < epsilon:
-        return random.choice(valid_actions)
-
-    q_values = get_q_values(state)
-    best_value = max(q_values[action] for action in valid_actions)
-
-    best_actions = [
-        action for action in valid_actions
-        if np.isclose(q_values[action], best_value)
-    ]
-
-    current_color = state[0]
-    current_action = current_color - 1
-
-    if current_action in best_actions:
-        return current_action
-
-    return min(best_actions)
+def best_valid_action(state, valid_actions):
+    q_vals = get_q_values(state)
+    current_action = state[0] - 1 if state[0] in (1, 2, 3) else -1
+    return max(
+        valid_actions,
+        key=lambda a: (q_vals[a], 1 if a == current_action else 0),
+    )
 
 
-print(f"Eğitim başladı. Sipariş toplamı: {TOTAL_CARS:,} araç.")
+env = PaintShopEnv(
+    target_black=7050,
+    target_grey=4000,
+    target_white=1000,
+    batch_size=100,
+)
+print("Eğitim başlıyor. Lütfen bekleyin...")
 
-recent_rewards = []
-
-for episode in range(1, EPISODES + 1):
+for ep in range(episodes):
     state = env.reset()
     done = False
-    episode_reward = 0
+    current_eps = 0.0 if ep >= int(episodes * 0.85) else epsilon
 
     while not done:
-        valid_actions = env.available_actions(state)
-        action = choose_action(state, valid_actions, EPSILON)
+        valid = env.valid_actions()
+        if random.uniform(0, 1) < current_eps:
+            action = random.choice(valid)
+        else:
+            action = best_valid_action(state, valid)
 
         next_state, reward, done = env.step(action)
-        episode_reward += reward
 
         old_q = get_q_values(state)[action]
-
         if done:
-            target_q = reward
+            next_max = 0.0
         else:
-            next_actions = env.available_actions(next_state)
-            next_q_values = get_q_values(next_state)
+            next_valid = env.valid_actions()
+            next_max = max(get_q_values(next_state)[a] for a in next_valid)
 
-            target_q = reward + GAMMA * max(
-                next_q_values[next_action]
-                for next_action in next_actions
-            )
-
-        get_q_values(state)[action] = old_q + ALPHA * (
-            target_q - old_q
-        )
-
+        q_table[state][action] = old_q + alpha * (reward + gamma * next_max - old_q)
         state = next_state
 
-    EPSILON = max(EPSILON_MIN, EPSILON * EPSILON_DECAY)
-    recent_rewards.append(episode_reward)
+    epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
-    if len(recent_rewards) > 50:
-        recent_rewards.pop(0)
+print("Eğitim tamamlandı! JSON dosyası oluşturuluyor...\n")
 
-    if episode % 10 == 0:
-        print(
-            f"Bölüm {episode}/{EPISODES} | "
-            f"Son bölümlerin ortalama ödülü: "
-            f"{np.mean(recent_rewards):,.2f} | "
-            f"Epsilon: {EPSILON:.3f} | "
-            f"Q durumu: {len(q_table):,}"
-        )
+q_table_str_keys = {
+    f"{s[0]},{s[1]},{s[2]},{s[3]}": vals.tolist() for s, vals in q_table.items()
+}
 
-print("Eğitim tamamlandı.")
+with open("QTable.json", "w", encoding="utf-8") as outfile:
+    json.dump(q_table_str_keys, outfile)
 
-q_table_json = {}
+print("QTable.json başarıyla kaydedildi\n")
 
-for state_key, q_values in q_table.items():
-    state = decode_state(state_key)
-    state_text = ",".join(map(str, state))
-    q_table_json[state_text] = q_values.tolist()
+# --- TERMİNAL ÇIKTISI ---
+print("-" * 60)
+print("OPTIMAL POLICY...")
+print("-" * 60)
 
-with open("QTable.json", "w", encoding="utf-8") as file:
-    json.dump(q_table_json, file, ensure_ascii=False)
-
-print(f"QTable.json kaydedildi. Durum sayısı: {len(q_table_json):,}")
-
-
-test_env = PaintShopEnv(BLACK_ORDER, GREY_ORDER, WHITE_ORDER)
-state = test_env.reset()
+state = env.reset()
 done = False
 total_reward = 0
-
-print("\nQ-LEARNING TESTİ")
-print("-" * 90)
+step_count = 1
+painted_vehicles = 0
+color_names = {1: "Siyah", 2: "Gri", 3: "Beyaz"}
 
 while not done:
-    previous_color = state[0]
-    valid_actions = test_env.available_actions(state)
+    valid = env.valid_actions()
+    action = best_valid_action(state, valid)
+    next_state, reward, done = env.step(action)
 
-   
-    action = choose_action(state, valid_actions, epsilon=0.0)
+    target_color = action + 1
+    color_str = color_names[target_color]
+    painted_vehicles += env.last_painted
 
-    state, reward, done = test_env.step(action)
+    print(
+        f"Adım {step_count:03d} | Seçilen: {color_str:5} (+{env.last_painted:03d} araç) | "
+        f"Kalan Araç -> Siyah: {next_state[1]:04d}, Gri: {next_state[2]:04d}, Beyaz: {next_state[3]:04d} | "
+        f"Ceza/Ödül: {reward}"
+    )
+
     total_reward += reward
+    state = next_state
+    step_count += 1
 
-    selected_color = action + 1
-    color_changed = previous_color != selected_color
-
-    if (
-        color_changed
-        or test_env.painted_cars % 1000 == 0
-        or done
-    ):
-        previous_name = (
-            PaintShopEnv.COLOR_NAMES.get(previous_color, "Başlangıç")
-        )
-
-        print(
-            f"Araç {test_env.painted_cars:>6,} | "
-            f"{previous_name:>9} -> "
-            f"{PaintShopEnv.COLOR_NAMES[selected_color]:<6} | "
-            f"Kalan stok: "
-            f"Siyah={test_env.left[0]:,}, "
-            f"Gri={test_env.left[1]:,}, "
-            f"Beyaz={test_env.left[2]:,} | "
-            f"Ödül: {reward}"
-        )
-
-print("-" * 90)
-print(f"Boyanan araç sayısı: {test_env.painted_cars:,}")
-print(f"Renk değişim sayısı: {test_env.color_changes}")
-print(f"Test toplam ödülü: {total_reward:,}")
+print("-" * 60)
+print(f"Boyanan Araç Sayısı: {painted_vehicles}")
+print(f"Toplam Kazanılan Puan : {total_reward}")
+print("-" * 60)
