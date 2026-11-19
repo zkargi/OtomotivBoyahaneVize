@@ -58,7 +58,7 @@ class PaintShopEnv:
         return self._get_state(), reward, done
 
 
-env = PaintShopEnv(target_black=23, target_grey=14, target_white=9)
+env = PaintShopEnv(target_black=5000, target_grey=14, target_white=9)
 q_table = {}
 
 alpha = 0.1      

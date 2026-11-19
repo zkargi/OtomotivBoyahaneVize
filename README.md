@@ -48,6 +48,36 @@ Eğitim, Epsilon-Greedy stratejisi kullanılarak **10.000 bölüm (episode)** bo
 
 Eğitim tamamlandıktan sonra elde edilen matris, Unity simülasyonunda kullanılmak üzere `QTable.json` formatında dışa aktarılır.
 
+
+# Büyük Sipariş Listsinde Otomotiv Boyahane Optimizasyonu (Q-Learning)
+
+Bu proje, bir otomotiv boyahanesindeki **renk değişim maliyetlerini en aza indirmek** için **Q-Learning (Pekiştirmeli Öğrenme)** algoritmasını kullanan bir simülasyon ve optimizasyon aracıdır.
+
+Ajan, belirli sayıda Siyah, Gri ve Beyaz aracı partiler halinde boyarken boya tabancası temizleme/renk geçiş cezalarından kaçınmayı öğrenerek en verimli boyama sırasını (optimal policy) çıkarır.
+
+## Problem Tanımı
+
+Üretim hattında belirli hedeflerde farklı renklerde araçlar boyanmaktadır:
+- **Siyah:** 7.000 araç (70 parti)
+- **Gri:** 4.000 araç (40 parti)
+- **Beyaz:** 1.000 araç (10 parti)
+- **Parti Boyutu (`batch_size`):** 100 araç
+
+Her adımda bir parti araç boyanır:
+- Aynı renkle devam etmek veya ilk rengi seçmek: **`+1` puan**
+- Farklı bir renge geçmek (temizlik ve hazırlık maliyeti): **`-100` puan**
+
+Amaç, tüm araçları boyarken toplam puanı maksimize etmektir (minimum renk değişimi).
+
+## Özellikler
+
+- **Özel Ortam (`PaintShopEnv`):** Durum uzayı `(mevcut_renk, kalan_siyah, kalan_gri, kalan_beyaz)` olarak modellenmiştir.
+- **Geçerli Eylem Maskeleme:** Sadece kalan partisi bulunan renklerin seçilmesine izin verilir.
+- **Epsilon-Greedy Keşif Stratejisi:** Eğitim boyunca keşif oranı kademeli olarak azaltılır; son %15'lik bölümde tamamen sömürü (exploitation) moduna geçilir.
+- **Model Kaydı:** Eğitilen Q-Tablosu, başka sistemlerde veya görselleştirmelerde kullanılabilmesi için `QTable.json` formatında dışa aktarılır.
+
+
+
 ## 🎮 3D Simülasyon - Unity C#
 Eğitilen ajanın kararları, Unity üzerinde geliştirilen `PaintShopController` ve `CarBehavior` sınıfları aracılığıyla görselleştirilir. Bu sistem, ajanın beyni olan Q-Tablosunu okuyarak üretim bandını otonom şekilde yönetir.
 
