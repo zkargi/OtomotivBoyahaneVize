@@ -16,6 +16,7 @@ Otomotiv boyahanelerinde peş peşe farklı renkte araçlar boyandığında, boy
 ## 🧠 Pekiştirmeli Öğrenme Mimarisi
 Ajanın eğitimi için özel bir `PaintShopEnv` ortamı inşa edilmiştir. Model, state-action uzayını keşfederek en yüksek ödülü getiren dizilimi öğrenir.
 
+
 ### 📊 Durum (State) Uzayı
 Durum uzayı 4 temel parametreden oluşur:
 * **Mevcut Renk:** O an boya tabancasında bulunan renk *(0: Başlangıç, 1: Siyah, 2: Gri, 3: Beyaz)*
@@ -23,11 +24,13 @@ Durum uzayı 4 temel parametreden oluşur:
 * **Kalan Gri Araç Siparişi**
 * **Kalan Beyaz Araç Siparişi**
 
+
 ### ⚙️ Eylem (Action) Uzayı
 Ajan, sıradaki aracı boyamak için 3 farklı eylemden birini seçebilir:
 1. **Siyaha boya**
 2. **Griye boya**
 3. **Beyaza boya**
+
 
 ### ⚖️ Ödül ve Ceza Mekanizması (Reward Function)
 Sistem, maliyetli temizlik işlemlerini sert cezalarla engellerken, aynı renk boyama işlemlerini ödüllendirir:
@@ -36,6 +39,7 @@ Sistem, maliyetli temizlik işlemlerini sert cezalarla engellerken, aynı renk b
 * **Aynı Renk ➔ Aynı Renk (+1):** Renk değişimi yok, temizlik maliyeti sıfır.
 * **Renk Değişimleri (-100):** Temizlik gerektiren geçişler.
 * **Kritik Hata (-100):** Kotası bitmiş bir rengin tekrar seçilmesi.
+
 
 ### 🎛️ Eğitim Hiperparametreleri
 Eğitim, Epsilon-Greedy stratejisi kullanılarak 20000 episode boyunca gerçekleştirilir.
@@ -47,11 +51,13 @@ Eğitim, Epsilon-Greedy stratejisi kullanılarak 20000 episode boyunca gerçekle
 Eğitim tamamlandıktan sonra elde edilen matris, Unity simülasyonunda kullanılmak üzere `QTable.json` formatında dışa aktarılır.
 
 
+
 # Büyük Sipariş Listsinde Otomotiv Boyahane Optimizasyonu (Q-Learning)
 
 Bu proje, bir otomotiv boyahanesindeki **renk değişim maliyetlerini en aza indirmek** için **Q-Learning (Pekiştirmeli Öğrenme)** algoritmasını kullanan bir simülasyon ve optimizasyon aracıdır.
 
 Ajan, belirli sayıda Siyah, Gri ve Beyaz aracı partiler halinde boyarken boya tabancası temizleme/renk geçiş cezalarından kaçınmayı öğrenerek en verimli boyama sırasını (optimal policy) çıkarır.
+
 
 ## Problem Tanımı
 
@@ -78,6 +84,7 @@ Amaç, tüm araçları boyarken toplam puanı maksimize etmektir (minimum renk d
 
 ## 🎮 3D Simülasyon - Unity C#
 Eğitilen ajanın kararları, Unity üzerinde geliştirilen `PaintShopController` ve `CarBehavior` sınıfları aracılığıyla görselleştirilir. Bu sistem, ajanın beyni olan Q-Tablosunu okuyarak üretim bandını otonom şekilde yönetir.
+
 
 ### 🚀 Çalışma Prensibi
 * **Veri Entegrasyonu:** Oyun başladığında `QTable.json` dosyası `Newtonsoft.Json` kütüphanesi ile belleğe alınır.
